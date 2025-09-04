@@ -1,0 +1,60 @@
+{
+  "name": "developerayo/fireblocks-laravel-sdk",
+  "version": "0.1.0",
+  "description": "A Laravel Package for Fireblocks",
+  "keywords": [
+    "developerayo",
+    "fireblocks",
+    "laravel",
+    "fireblocks-laravel",
+    "fireblocks-sdk",
+    "fireblocks-api",
+    "fireblocks-laravel",
+    "crypto",
+    "wallet"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Shodipo Ayomide",
+      "email": "shodipovi@example.com",
+      "homepage": "http://shodipoayomide.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "guzzlehttp/guzzle": "^7.5",
+    "firebase/php-jwt": "^6.3",
+    "illuminate/support": "^10.0|^11.0",
+    "nesbot/carbon": "^2.66"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0",
+    "orchestra/testbench": "^8.0|^9.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Developerayo\\FireblocksLaravel\\": "src/",
+      "DeveloperayoFireblocksLaravel\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Developerayo\\FireblocksLaravel\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Developerayo\\FireblocksLaravel\\ServiceProvider"
+      ],
+      "aliases": {
+        "Fireblocks": "Developerayo\\FireblocksLaravel\\Facades\\Fireblocks"
+      }
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
