@@ -41,4 +41,5 @@ class ForbiddenException extends ApiException {}
 class NotFoundException extends ApiException {}
 class ConflictException extends ApiException {}
 class UnprocessableEntityException extends ApiException {}
+class RateLimitException extends ApiException {}
 class ServiceException extends ApiException {}

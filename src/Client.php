@@ -15,6 +15,7 @@ use Developerayo\FireblocksLaravel\Exceptions\ForbiddenException;
 use Developerayo\FireblocksLaravel\Exceptions\NotFoundException;
 use Developerayo\FireblocksLaravel\Exceptions\ConflictException;
 use Developerayo\FireblocksLaravel\Exceptions\UnprocessableEntityException;
+use Developerayo\FireblocksLaravel\Exceptions\RateLimitException;
 use Developerayo\FireblocksLaravel\Exceptions\ServiceException;
 
 class Client
@@ -225,6 +226,8 @@ class Client
 				throw new ConflictException($body, $statusCode, $errorData, $headers);
 			case 422:
 				throw new UnprocessableEntityException($body, $statusCode, $errorData, $headers);
+			case 429:
+				throw new RateLimitException($body, $statusCode, $errorData, $headers);
 			default:
 				if ($statusCode >= 500 && $statusCode <= 599) {
 					throw new ServiceException($body, $statusCode, $errorData, $headers);
