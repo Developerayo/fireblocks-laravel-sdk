@@ -261,10 +261,36 @@ class Fireblocks
         return $this->apiInstances[$key];
     }
 
-    public function getApiClient(): Client
-    {
-        return $this->apiClient;
-    }
+    	public function getApiClient(): Client
+	{
+		return $this->apiClient;
+	}
+
+	public function createTransaction(
+		array $data, 
+		?string $externalTxId = null,
+		?string $idempotencyKey = null
+	): array {
+		if ($externalTxId !== null) {
+			$data['externalTxId'] = $externalTxId;
+			
+            // gen key from externalTxId
+			if ($idempotencyKey === null) {
+				$idempotencyKey = substr(hash('sha256', $externalTxId), 0, 40);
+			}
+		}
+		
+		return $this->apiClient->makeRequest(
+			'POST',
+			'/v1/transactions',
+			[],
+			[],
+			$data,
+			'\stdClass',
+			null,
+			$idempotencyKey
+		);
+	}
 
     public function close(): void
     {

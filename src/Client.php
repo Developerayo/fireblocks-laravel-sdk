@@ -50,6 +50,7 @@ class Client
 	 * @param mixed $requestBody Request payload
 	 * @param string $responseType Expected response type
 	 * @param string|null $endpointPath Alternative endpoint path
+	 * @param string|null $idempotencyKey Cstom idempotency key for post req
 	 * @return array [response, statusCode, headers]
 	 */
 	public function makeRequest(
@@ -59,9 +60,14 @@ class Client
 		array $requestHeaders = [],
 		$requestBody = null,
 		string $responseType = '\stdClass',
-		?string $endpointPath = null
+		?string $endpointPath = null,
+		?string $idempotencyKey = null
 	): array {
 		$headers = array_merge($this->defaultHeaders, $requestHeaders);
+		
+		if ($method === 'POST' && $idempotencyKey !== null) {
+    		$headers['Idempotency-Key'] = $idempotencyKey;
+		}
 		
 		if ($requestBody !== null && !isset($headers['Content-Type'])) {
 			$headers['Content-Type'] = 'application/json';
