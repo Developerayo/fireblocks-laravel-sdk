@@ -144,7 +144,13 @@ class Client
 		$currentTimestamp = time();
 		$requestNonce = (string) Str::uuid();
 		$tokenExpirationSeconds = 55;
-		$jsonEncodedBody = ($requestBody !== null) ? json_encode($requestBody) : '';
+		
+		if (is_string($requestBody)) {
+			$jsonEncodedBody = $requestBody;
+		} else {
+			$jsonEncodedBody = ($requestBody !== null) ? json_encode($requestBody) : '';
+		}
+		
 		$requestBodyHash = hash('sha256', $jsonEncodedBody);
 		
 		$jwtPayload = [
@@ -154,6 +160,7 @@ class Client
 			'exp' => $currentTimestamp + $tokenExpirationSeconds,
 			'sub' => $this->config->getApiKey(),
 			'bodyHash' => $requestBodyHash,
+			'method' => strtoupper($httpMethod),
 		];
 
 		return JWT::encode($jwtPayload, $this->formatPrivateKey($this->config->getSecretKey()), 'RS256');
