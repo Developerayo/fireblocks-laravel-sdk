@@ -67,14 +67,15 @@ class Client
 			$headers['Content-Type'] = 'application/json';
 		}
 		
-		$token = $this->generateToken($method, $endpoint, $requestBody);
+		$pathWithQuery = $endpoint;
+		if (!empty($queryParams)) {
+			$pathWithQuery .= '?' . http_build_query($queryParams);
+		}
+		
+		$token = $this->generateToken($method, $pathWithQuery, $requestBody);
 		$headers['Authorization'] = 'Bearer ' . $token;
 
-		$query = http_build_query($queryParams);
-		$url = $this->config->getBasePath() . $endpoint;
-		if ($query) {
-			$url .= '?' . $query;
-		}
+		$url = $this->config->getBasePath() . $pathWithQuery;
 
 		$requestPayload = null;
 		if ($requestBody !== null) {
