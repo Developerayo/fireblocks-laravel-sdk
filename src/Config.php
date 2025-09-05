@@ -13,6 +13,9 @@ class Config
 	public bool $debug;
 	public array $defaultHeaders;
 	public ?string $tempFolderPath;
+	public int $timeout;
+	public int $connectTimeout;
+	public bool $verifySSL;
 
 	// constants for base path 
 	public const SANDBOX = 'https://sandbox-api.fireblocks.io/v1';
@@ -31,6 +34,9 @@ class Config
 		$this->debug = $config['debug'] ?? config('app.debug', false);
 		$this->defaultHeaders = $config['default_headers'] ?? [];
 		$this->tempFolderPath = $config['temp_folder_path'] ?? null;
+		$this->timeout = $config['timeout'] ?? config('fireblocks.timeout') ?? 30;
+		$this->connectTimeout = $config['connect_timeout'] ?? config('fireblocks.connect_timeout') ?? 10;
+		$this->verifySSL = $config['verify_ssl'] ?? config('fireblocks.verify_ssl') ?? true;
 		
 		$this->validate();
 	}
@@ -78,6 +84,21 @@ class Config
 	public function getTempFolderPath(): ?string
 	{
 		return $this->tempFolderPath;
+	}
+
+	public function getTimeout(): int
+	{
+		return $this->timeout;
+	}
+
+	public function getConnectTimeout(): int
+	{
+		return $this->connectTimeout;
+	}
+
+	public function getVerifySSL(): bool
+	{
+		return $this->verifySSL;
 	}
 
 	public function setApiKey(string $apiKey): self

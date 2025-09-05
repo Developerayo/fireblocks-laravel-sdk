@@ -30,9 +30,10 @@ class Client
 		
 		$this->httpClient = $httpClient ?? new GuzzleClient([
 			'base_uri' => $config->getBasePath(),
-			'timeout' => 30,
-			'connect_timeout' => 10,
+			'timeout' => $config->getTimeout(),
+			'connect_timeout' => $config->getConnectTimeout(),
 			'http_errors' => false,
+			'verify' => $config->getVerifySSL(),
 		]);
 
 		$this->defaultHeaders = [
@@ -79,10 +80,21 @@ class Client
 			$pathWithQuery .= '?' . http_build_query($queryParams);
 		}
 		
-		$token = $this->generateToken($method, $pathWithQuery, $requestBody);
+		if ($endpointPath !== null) {
+			$url = $endpointPath;
+			if (!empty($queryParams)) {
+				$url .= '?' . http_build_query($queryParams);
+			}
+		} else {
+			$url = $this->config->getBasePath() . $pathWithQuery;
+		}
+		
+		$tokenPath = $endpointPath !== null 
+			? parse_url($endpointPath, PHP_URL_PATH) . (parse_url($endpointPath, PHP_URL_QUERY) ? '?' . parse_url($endpointPath, PHP_URL_QUERY) : '')
+			: $pathWithQuery;
+		
+		$token = $this->generateToken($method, $tokenPath, $requestBody);
 		$headers['Authorization'] = 'Bearer ' . $token;
-
-		$url = $this->config->getBasePath() . $pathWithQuery;
 
 		$requestPayload = null;
 		if ($requestBody !== null) {
@@ -118,31 +130,6 @@ class Client
 		return $this->config;
 	}
 
-	public function buildAcceptHeader(array $accept): ?string
-	{
-		if (empty($accept)) {
-			return null;
-		}
-		
-		if (in_array('application/json', $accept, true)) {
-			return 'application/json';
-		}
-		
-		return implode(',', $accept);
-	}
-
-	public function buildContentTypeHeader(array $contentTypes): string
-	{
-		if (empty($contentTypes)) {
-			return 'application/json';
-		}
-		
-		if (in_array('application/json', $contentTypes, true)) {
-			return 'application/json';
-		}
-		
-		return $contentTypes[0];
-	}
 
 	/**
 	 * Generate JWT for api auth
@@ -236,74 +223,4 @@ class Client
 		}
 	}
 
-	public static function sanitizeForSerialization($data)
-	{
-		if (is_scalar($data) || null === $data) {
-			return $data;
-		}
-
-		if ($data instanceof \DateTime) {
-			return $data->format(\DateTime::ATOM);
-		}
-
-		if (is_array($data)) {
-			foreach ($data as $property => $value) {
-				$data[$property] = self::sanitizeForSerialization($value);
-			}
-			return $data;
-		}
-
-		if (is_object($data)) {
-			$values = [];
-			if ($data instanceof \JsonSerializable) {
-				$values = $data->jsonSerialize();
-			} else {
-				$values = (array) $data;
-			}
-			foreach ($values as $property => $value) {
-				$values[$property] = self::sanitizeForSerialization($value);
-			}
-			return $values;
-		}
-
-		return (string) $data;
-	}
-
-	public static function processFormData(array $formData, array $files = []): array
-	{
-		$processedData = [];
-		
-		foreach ($formData as $name => $value) {
-			if (is_array($value)) {
-				foreach ($value as $item) {
-					$processedData[] = [
-						'name' => $name . '[]',
-						'contents' => $item
-					];
-				}
-			} else {
-				$processedData[] = [
-					'name' => $name,
-					'contents' => $value
-				];
-			}
-		}
-		
-		foreach ($files as $name => $file) {
-			if (is_array($file)) {
-				$processedData[] = [
-					'name' => $name,
-					'contents' => $file['contents'] ?? '',
-					'filename' => $file['filename'] ?? $name
-				];
-			} else {
-				$processedData[] = [
-					'name' => $name,
-					'contents' => $file
-				];
-			}
-		}
-		
-		return $processedData;
-	}
 }
